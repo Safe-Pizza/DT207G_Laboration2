@@ -6,6 +6,9 @@ const cors = require("cors");
 //Databasanslutning
 const db = new Database("jobs.db");
 
+//Routes variabel
+const jobRoutes = require("./routes/job");
+
 //Varibel för express
 const app = express();
 
@@ -14,6 +17,9 @@ app.use(cors());
 
 //Parse JSON
 app.use(express.json());
+
+//Routes
+app.use("/jobs", jobRoutes);
 
 //Starta server
 const port = 5000;

@@ -25,14 +25,12 @@ route.get("/:id", (req, res) => {
     let jobId = req.params.id;
 
     try {
-        //Kontroll ifall ID är undefined
-        if (jobId === undefined) {
-            res.status(400).json({ message: "ID is not recognized" });
-
-            return;
-        }
         //Hämta specifik data från databas
         const job = db.prepare("SELECT * FROM job WHERE id = ?").get(jobId);
+
+        if (!job) {
+            return res.status(404).json({ message: `Job not found` })
+        }
 
         //returnera svar från sql-fråga
         res.json(job);
@@ -95,29 +93,62 @@ route.post("/", (req, res) => {
 
 
 route.put("/:id", (req, res) => {
-    res.json({ message: "PUT request job/:id" });
-})
+    const jobId = req.params.id;
 
-route.delete("/:id", (req, res) => {
-    let jobId = req.params.id;
+    const {
+        companyname,
+        jobtitle,
+        location,
+        descripton,
+        startdate,
+        enddate
+    } = req.body;
 
-    //Kontroll om ID undefined
-    if (jobId === undefined) {
+    //varibel för felmeddelande
+    let errors = {
+        message: "",
+        detail: "",
+        https_res: {
+
+        }
+    };
+
+    //Kontroll inga tomma textfält
+    if (!companyname || !jobtitle || !location || !descripton || !startdate || !enddate) {
         //Felmeddelande
-        res.status(400).json({ message: "ID is not recognized" });
+        errors.message = "All params are not included";
+        errors.detail = "Must include companyname, jobtitle, location, descripton, startdate, enddate in JSON"
+        //Felkods-status
+        errors.https_res.message = "Bad request";
+        errors.https_res.code = 400;
+
+        res.status(400).json(errors);
 
         return;
     }
+
+    try {
+        //SQL-fråga ändra specifikt jobb i databas
+        const jobChange = db.prepare(`UPDATE job SET companyname = ?, jobtitle = ?, location = ?, descripton = ?, startdate = ?, enddate = ? WHERE id = ?`);
+        jobChange.run(companyname, jobtitle, location, descripton, startdate, enddate, jobId);
+        //Meddelande vid OK
+        res.json({ message: `Job with ID: ${jobId} has been succesfully changed` });
+    } catch (error) {
+        //Felmeddelande
+        res.status(500).json({ message: `Error occured: ${error} and the job has not been changed` });
+    }
+})
+
+route.delete("/:id", (req, res) => {
     try {
         //SQL-fråga ta bort från databas
-        const deleteInput = db.prepare(`DELETE FROM job WHERE id = ?;`);
-        //Kör SQL-frpga
-        deleteInput.run(jobId);
+        const deleteInput = db.prepare(`DELETE FROM job WHERE id = ?;`).run(req.params.id);
+
         //Meddelande vid OK
         res.json({ message: `DELETE request OK, ID: ${jobId} deleted` });
     } catch (error) {
         //Felmeddelande
-        res.status(500).json({ message: `An error has occured: ${error}` });
+        res.status(500).json({ message: `An error has occured: ${error} and the job has not been deleted` });
     }
 })
 

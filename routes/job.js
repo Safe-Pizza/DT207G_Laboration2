@@ -75,6 +75,22 @@ route.put("/:id", (req, res) => {
 })
 
 route.delete("/:id", (req, res) => {
-    res.json({ message: "DELETE request job:id" })
+    let jobId = req.params.id;
+
+    if (jobId === undefined) {
+        res.status(400).json({ message: "ID is not recognized" });
+
+        return;
+    }
+    try {
+        const deleteInput = db.prepare(`DELETE FROM job WHERE id=(?);`);
+
+        deleteInput.run(jobId);
+
+        res.json({ message: `DELETE request OK, ID: ${jobId} deleted` });
+    } catch (error) {
+        res.status(500).json({ message: `An error has occured: ${error}` });
+    }
 })
+
 module.exports = route;

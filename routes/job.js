@@ -7,20 +7,36 @@ const route = express.Router();
 //Routes
 route.get("/", (req, res) => {
     try {
+        //Hämta allt från databas
         const jobs = db.prepare("SELECT * FROM job").all();
-
+        //Kontroll om databas saknar data
         if (jobs.length === 0) {
             res.status(404).json({ message: "No jobs found" });
         } else {
             res.json(jobs);
         }
     } catch (error) {
+        //Felmeddelande vid error
         res.status(500).json({ message: "Could not fetch jobs" });
     }
 })
 
 route.get("/:id", (req, res) => {
-    res.json({ message: "GET request: job/:id" });
+    let jobId = req.params.id;
+
+    try {
+        if (jobId === undefined) {
+            res.status(400).json({ message: "ID is not recognized" });
+
+            return;
+        }
+        //Hämta specifik data från databas
+        const job = db.prepare("SELECT * FROM job WHERE id = ?").get(jobId);
+
+        res.json(job);
+    } catch (error) {
+        res.status(500).json({ message: `An error has occurd: ${error}` })
+    }
 })
 
 route.post("/", (req, res) => {
@@ -83,7 +99,7 @@ route.delete("/:id", (req, res) => {
         return;
     }
     try {
-        const deleteInput = db.prepare(`DELETE FROM job WHERE id=(?);`);
+        const deleteInput = db.prepare(`DELETE FROM job WHERE id = ?;`);
 
         deleteInput.run(jobId);
 

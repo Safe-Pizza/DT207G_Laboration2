@@ -39,7 +39,7 @@ route.post("/", (req, res) => {
         }
     };
 
-    if(!companyname || !jobtitle || !location || !description || !startdate || !enddate) {
+    if (!companyname || !jobtitle || !location || !description || !startdate || !enddate) {
         errors.message = "All params are not included";
         errors.detail = "Must include companyname, jobtitle, location, description, startdate, enddate in JSON"
 
@@ -60,7 +60,13 @@ route.post("/", (req, res) => {
         enddate: enddate
     }
 
-    res.json({ message: "POST request job" });
+    try {
+        const jobInput = db.prepare(`INSERT INTO job(companyname, jobtitle, location, descripton, startdate, enddate)VALUES(?, ?, ?, ?, ?, ?);`);
+        jobInput.run(companyname, jobtitle, location, description, startdate, enddate);
+        res.json({ message: "Job has been added " + job.jobtitle });
+    } catch (error) {
+        res.status(500).json({ message: "Error occured: " + error });
+    }
 })
 
 

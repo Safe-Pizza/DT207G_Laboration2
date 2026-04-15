@@ -14,5 +14,4 @@ db.exec(`
         user_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
         )`);
 
-
 db.close();

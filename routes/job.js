@@ -129,10 +129,15 @@ route.put("/:id", (req, res) => {
 
     try {
         //SQL-fråga ändra specifikt jobb i databas
-        const jobChange = db.prepare(`UPDATE job SET companyname = ?, jobtitle = ?, location = ?, descripton = ?, startdate = ?, enddate = ? WHERE id = ?`);
-        jobChange.run(companyname, jobtitle, location, descripton, startdate, enddate, jobId);
-        //Meddelande vid OK
-        res.json({ message: `Job with ID: ${jobId} has been succesfully changed` });
+        const jobChange = db.prepare(`UPDATE job SET companyname = ?, jobtitle = ?, location = ?, descripton = ?, startdate = ?, enddate = ? WHERE id = ?`).run(companyname, jobtitle, location, descripton, startdate, enddate, jobId);
+
+        //Felmeddelande om ID inte finns och inga ändringar gjorts
+        if (jobChange.changes === 0) {
+            res.status(404).json({ message: "ID not found, job has not been changed" });
+        } else {
+            //Meddelande vid OK
+            res.json({ message: `Job with ID: ${jobId} has been succesfully changed` });
+        }
     } catch (error) {
         //Felmeddelande
         res.status(500).json({ message: `Error occured: ${error} and the job has not been changed` });
@@ -142,13 +147,18 @@ route.put("/:id", (req, res) => {
 route.delete("/:id", (req, res) => {
     try {
         //SQL-fråga ta bort från databas
-        const deleteInput = db.prepare(`DELETE FROM job WHERE id = ?;`).run(req.params.id);
+        const deleteJob = db.prepare(`DELETE FROM job WHERE id = ?;`).run(req.params.id);
 
-        //Meddelande vid OK
-        res.json({ message: `DELETE request OK, ID: ${jobId} deleted` });
+        //Felmeddelande om ID inte finns och inget raderats
+        if (deleteJob.changes === 0) {
+            res.status(404).json({ message: "ID not found, job has not been deleted" });
+        } else {
+            //Meddelande vid OK
+            res.json({ message: `Job with ID: ${jobId} has been succesfully deleted` });
+        }
     } catch (error) {
         //Felmeddelande
-        res.status(500).json({ message: `An error has occured: ${error} and the job has not been deleted` });
+        res.status(404).json({ message: `An error has occured: ${error} and the job has not been deleted` });
     }
 })
 

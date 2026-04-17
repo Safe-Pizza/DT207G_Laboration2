@@ -135,8 +135,6 @@ route.put("/:id", (req, res) => {
         if (jobChange.changes === 0) {
             return res.status(404).json({ message: `ID not found` });
         }
-
-        console.log(jobChange);
         //Meddelande vid OK
         res.json({ message: `Job with ID: ${jobId} has been succesfully changed` });
     } catch (error) {

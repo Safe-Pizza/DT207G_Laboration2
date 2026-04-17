@@ -3,7 +3,10 @@ Detta är en laboration i _Webbutveckingsprogrammet_ på Mittuniveristetet.
 
 Repot innehåller kod för ett enkelt REST API som är byggt med express.
 APIet är byggt för att hantera tidigare arbetserfarenheter såsom arbetsplats, typ av jobb, beskrivning och anställningstid.
-CRUD (Create, Read, Update and Delete) är implementerat .
+CRUD (Create, Read, Update and Delete) är implementerat.
+
+## Redovsning
+[Redovisningsvideo](https://youtu.be/c6IRwHEpC5g)
 
 ## Installation och Databas
 APIet använder SQlite3 (better-sqlite3) som databas. 

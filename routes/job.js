@@ -78,13 +78,13 @@ route.post("/", (req, res) => {
         startdate: startdate,
         enddate: enddate
     }
+    //SQL-fråga lägga till i databas
+    const jobInput = db.prepare(`INSERT INTO job(companyname, jobtitle, location, descripton, startdate, enddate)VALUES(?, ?, ?, ?, ?, ?);`);
 
     try {
-        //SQL-fråga lägga till i databas
-        const jobInput = db.prepare(`INSERT INTO job(companyname, jobtitle, location, descripton, startdate, enddate)VALUES(?, ?, ?, ?, ?, ?);`);
-        jobInput.run(companyname, jobtitle, location, description, startdate, enddate);
+        const result = jobInput.run(companyname, jobtitle, location, description, startdate, enddate);
         //Meddelande vid OK
-        res.status(201).json({ message: "Job has been added " + job.jobtitle });
+        res.status(201).json({ id: result.lastInsertRowid, ...req.body });
     } catch (error) {
         //Felmeddelande
         res.status(500).json({ message: "Error occured: " + error });

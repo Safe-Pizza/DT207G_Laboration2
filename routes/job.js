@@ -133,11 +133,12 @@ route.put("/:id", (req, res) => {
 
         //Felmeddelande om ID inte finns och inga ändringar gjorts
         if (jobChange.changes === 0) {
-            res.status(404).json({ message: "ID not found, job has not been changed" });
-        } else {
-            //Meddelande vid OK
-            res.json({ message: `Job with ID: ${jobId} has been succesfully changed` });
+            return res.status(404).json({ message: `ID not found` });
         }
+
+        console.log(jobChange);
+        //Meddelande vid OK
+        res.json({ message: `Job with ID: ${jobId} has been succesfully changed` });
     } catch (error) {
         //Felmeddelande
         res.status(500).json({ message: `Error occured: ${error} and the job has not been changed` });
@@ -149,12 +150,15 @@ route.delete("/:id", (req, res) => {
         //SQL-fråga ta bort från databas
         const deleteJob = db.prepare(`DELETE FROM job WHERE id = ?;`).run(req.params.id);
 
+        if (deleteJob.changes === 0) {
+            res.status(404).json({ message: `ID not found` });
+        }
         //Meddelande vid OK
         res.json({ message: `Job with ID: ${req.params.id} has been succesfully deleted` });
 
     } catch (error) {
         //Felmeddelande
-        res.status(404).json({ message: `An error has occured: ${error} and the job has not been deleted` });
+        res.status(500).json({ message: `An error has occured: ${error} and the job has not been deleted` });
     }
 })
 

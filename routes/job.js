@@ -149,13 +149,9 @@ route.delete("/:id", (req, res) => {
         //SQL-fråga ta bort från databas
         const deleteJob = db.prepare(`DELETE FROM job WHERE id = ?;`).run(req.params.id);
 
-        //Felmeddelande om ID inte finns och inget raderats
-        if (deleteJob.changes === 0) {
-            res.status(404).json({ message: "ID not found, job has not been deleted" });
-        } else {
-            //Meddelande vid OK
-            res.json({ message: `Job with ID: ${jobId} has been succesfully deleted` });
-        }
+        //Meddelande vid OK
+        res.json({ message: `Job with ID: ${req.params.id} has been succesfully deleted` });
+
     } catch (error) {
         //Felmeddelande
         res.status(404).json({ message: `An error has occured: ${error} and the job has not been deleted` });
